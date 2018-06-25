@@ -1,6 +1,9 @@
 package binder;
 
 import brut.apktool.Main;
+import orig.SignApk;
+import s.Sign;
+
 import java.io.*;
 
 public class Binder {
@@ -35,6 +38,13 @@ public class Binder {
         }catch (Exception ex){
             ex.printStackTrace();
             consoleProcess.onFinish(ex.getMessage());
+        }
+    }
+    public void signApk(File apkFile){
+        try {
+            Sign.main(new String[]{apkFile.getPath()});
+        }catch (Exception e){
+            e.printStackTrace();
         }
     }
     public String readFile(String filePath){
