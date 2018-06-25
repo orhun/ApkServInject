@@ -7,16 +7,11 @@ public class ApkBinder {
     private static String workingDir = System.getProperty("user.dir");
     private static Binder binder;
     public static void main(String[] args) {
+        /*Get these values from args*/
+        File apkFile = new File(workingDir + "\\test.apk");
+        File smaliFile = new File(workingDir + "\\MyService.smali");
+        /*==========================*/
         binder = new Binder();
-
-        /*binder.decodeApk(new File(workingDir+"\\testfile.apk"), (output1) -> {
-            System.out.println(output1);
-            System.out.println("=============");
-            binder.buildApk(new File(workingDir+"\\testfile\\"), (output2) -> {
-                System.out.println(output2);
-                System.out.println("=============");
-            });
-        });*/
-        binder.signApk(new File(workingDir+"\\testfile.apk"));
+        binder.bindApk(apkFile, smaliFile);
     }
 }
