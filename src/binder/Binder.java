@@ -1,28 +1,40 @@
 package binder;
 
 import brut.apktool.Main;
-import brut.common.BrutException;
-
 import java.io.*;
 
 public class Binder {
+    public interface ConsoleProcess{
+        void onFinish(String output);
+    }
+    private ConsoleProcess consoleProcess;
 
-    public String decodeApk(File apkFile){
+    public void decodeApk(File apkFile, ConsoleProcess consoleProcess){
+        this.consoleProcess = consoleProcess;
+        String[] args = new String[]{"d", "-f", apkFile.getPath().trim()};
+        runApktool(apkFile, args);
+    }
+    public void buildApk(File apkFile, ConsoleProcess consoleProcess){
+        this.consoleProcess = consoleProcess;
+        String[] args = new String[]{"b", apkFile.getPath().trim()};
+        runApktool(apkFile, args);
+    }
+    private void runApktool(File apkFile, String[] args){
         try {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             PrintStream printStream = System.out;
             System.setOut(new PrintStream(byteArrayOutputStream));
             if(apkFile.exists()) {
-                Main.main(new String[]{"d", "-f", apkFile.getPath().trim()});
+                Main.main(args);
             }else {
                 throw new Exception("No readable apk file found.");
             }
             System.out.flush();
             System.setOut(printStream);
-            return byteArrayOutputStream.toString();
+            consoleProcess.onFinish(byteArrayOutputStream.toString());
         }catch (Exception ex){
             ex.printStackTrace();
-            return ex.getMessage();
+            consoleProcess.onFinish(ex.getMessage());
         }
     }
     public String readFile(String filePath){
