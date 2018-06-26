@@ -8,7 +8,7 @@ public class ApkBinder {
     private static Binder binder;
     public static void main(String[] args) {
         /*Get these values from args*/
-        File apkFile = new File(workingDir + "\\test.apk");
+        File apkFile = new File(workingDir + "\\ColorNote.apk");
         File smaliFile = new File(workingDir + "\\MyService.smali");
         /*==========================*/
         binder = new Binder();
