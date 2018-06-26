@@ -94,7 +94,6 @@ public class Binder {
                         printLog("Manifest file found: " + manifestFile.getName());
                         printLog("Trying to find EntryPoint smali...");
                         manifestContent = readFile(manifestFile.getPath()).replace("\n", "").replace("\r", "");
-                        System.out.println(manifestContent);
                         manifestMatcher = constants.manifestPattern1.matcher(manifestContent);
                         if (manifestMatcher.find()){
                             androidPackageName = manifestMatcher.group(0).replace("<activity android:name=\"", "")
@@ -120,8 +119,9 @@ public class Binder {
                         printLog("Moving and changing smali file...");
                         newSmaliFile = new File(epSmaliFile.getParent()+"\\"+smaliFile.getName());
                         if(!copyFile(smaliFile.getPath(), newSmaliFile.getPath())){ throw new Exception(constants.FILE_COPY_ERROR);}
+                        String smaliPackage = readFile(newSmaliFile.getPath()).split("\n")[0].replace(".class public L", "").replace(";", "");
                         newSmaliFileContent = readFile(newSmaliFile.getPath()).replaceAll(".class(.+?)L(.+?)/(.+?);", ".class public L"+
-                                smaliPackageName.replace(".", "/")+";");
+                                smaliPackageName.replace(".", "/")+";").replace(smaliPackage, smaliPackageName.replace(".", "/"));
                         if(!writeFile(newSmaliFile.getPath(), newSmaliFileContent)){throw new Exception(constants.FILE_WRITE_ERROR);}
                         /*Edit EP File*/
                         printLog("Changing EntryPoint smali...");
