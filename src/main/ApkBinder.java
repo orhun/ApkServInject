@@ -14,4 +14,5 @@ public class ApkBinder {
         binder = new Binder();
         binder.bindApk(apkFile, smaliFile);
     }
+
 }
