@@ -36,14 +36,14 @@ public class InjectThread extends Thread {
                     inj.printLog("\n" + output1);
                     if(output1.split("I:")[output1.split("I:").length-1].contains("Copying original files...")) {  /* Check last info */
                         manifestFile = new File(apkFile.getParent() + "\\" + inj.getFilenameWithoutExtension(apkFile.getName()) + "\\AndroidManifest.xml");
-                        if (!manifestFile.exists()) { throw new ManifestNotFoundException(constants.MANIFEST_NOT_FOUND_ERROR); }
+                        if (!manifestFile.exists()) { throw new ManifestNotFoundException(constants.MANIFEST_NOT_FOUND_ERROR + " : \"" + manifestFile.getPath() + "\""); }
                         inj.printLog("Manifest file found: " + manifestFile.getName());
                         inj.printLog("Trying to find EntryPoint smali...");
                         manifestContent = inj.readFile(manifestFile.getPath()).replace("\n", "").replace("\r", "");
                         manifestMatcher = constants.manifestPattern1.matcher(manifestContent);
                         if (manifestMatcher.find()){
-                            androidPackageName = manifestMatcher.group(0).replace("<activity android:name=\"", "")
-                                    .replaceAll("\">(.+?)<intent-filter>(.+?)+", "");
+                            androidPackageName = manifestMatcher.group(0).replaceAll("<activity(.+?)android:name=\"", "")
+                                    .replaceAll("\"(.+?)<intent-filter>(.+?)+", "");
                         }
                         inj.printLog("EntryPoint smali: " + androidPackageName);
                         if(androidPackageName.length()<5 | androidPackageName.split("[.]").length == 0){ throw new FileParseException(constants.MANIFEST_PARSE_ERROR);}
@@ -128,7 +128,6 @@ public class InjectThread extends Thread {
                                             }
                                         }catch (Exception e){
                                             e.printStackTrace();
-                                            System.out.println(e.getMessage());
                                         }
                                     });
                                 } else {
@@ -136,7 +135,6 @@ public class InjectThread extends Thread {
                                 }
                             }catch (Exception e){
                                 e.printStackTrace();
-                                System.out.println(e.getMessage());
                             }
                         });
 
@@ -145,7 +143,6 @@ public class InjectThread extends Thread {
                     }
                 }catch (Exception e){
                     e.printStackTrace();
-                    System.out.println(e.getMessage());
                 }
             });
         }else{

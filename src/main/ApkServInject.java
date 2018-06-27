@@ -7,6 +7,7 @@ import utils.exceptions.ApkNotFoundException;
 import utils.exceptions.ApkServInjectException;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Scanner;
 
 public class ApkServInject {
@@ -24,10 +25,16 @@ public class ApkServInject {
             CommandLine commandLine = parser.parse(options, args, false);
             if(commandLine.hasOption("a") && commandLine.hasOption("apk") &&
                     commandLine.hasOption("s") && commandLine.hasOption("smali")){
-                File apkFile = new File(commandLine.getOptionValue(apkFileOption.getOpt()));
-                File smaliFile = new File(commandLine.getOptionValue(smaliFileOption.getOpt()));
+                File apkFile = new File(commandLine.getArgs()[0]);
+                File smaliFile = new File(commandLine.getArgs()[1]);
                 if(!apkFile.exists()){throw new ApkNotFoundException(new Constants().APK_NOT_FOUND_ERROR);}
                 if(!smaliFile.exists()){throw new ApkNotFoundException(new Constants().SMALI_NOT_FOUND_ERROR);}
+                if(apkFile.getParent() == null || smaliFile.getParent() == null){ /* Same dir */
+                    apkFile = new File(workingDir + "\\" + apkFile.getName());
+                    smaliFile = new File(workingDir + "\\" + smaliFile);
+                    System.out.println(apkFile.getPath() + smaliFile.getParent());
+                }
+                printHeader();
                 injector.injectSmali(apkFile, smaliFile);
             }else{
                 throw new ApkServInjectException("Print_usage");
@@ -66,11 +73,15 @@ public class ApkServInject {
         options.addOption(apkFileOption);
         options.addOption(smaliFileOption);
     }
-    private static void printUsage(){
+    private static void printHeader(){
         System.out.println(new Constants().asciiHeader);
-        System.out.println("ApkServInject - a tool for injecting (smali) service to Android apk files");
+        System.out.println("ApkServInject - a tool for injecting (smali) service to Android apk files\n");
+    }
+    private static void printUsage(){
+        printHeader();
         HelpFormatter formatter = new HelpFormatter();
         formatter.printHelp("ApkServInject", options);
         System.out.println("\nFor additional info, see: http://github.com/KeyLo99/ApkServInject\n");
+        // // TODO: 6/28/2018 Add help option
     }
 }
