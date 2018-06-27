@@ -3,7 +3,7 @@ package utils;
 import java.util.regex.Pattern;
 
 public final class Constants {
-    /*// TODO: 6/26/2018 Declare custom exceptions */
+
     public final String APK_NOT_FOUND_ERROR = "[!] No readable APK file found.";
     public final String SMALI_NOT_FOUND_ERROR = "[!] No readable APK or smali file found.";
     public final String MANIFEST_NOT_FOUND_ERROR = "[!] Manifest file not found";
