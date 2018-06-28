@@ -15,7 +15,6 @@ public class ApkServInject {
     private static final Options options = new Options();
     private static final File testApkFile = new File(workingDir + "/test.apk");
     private static final File testSmaliFile = new File(workingDir + "/Serv2Inject.smali");
-    private static Option apkFileOption, smaliFileOption;
     private static Boolean testInj = false;
     public static void main(String[] args) {
         CommandLineParser parser = new DefaultParser();
@@ -67,8 +66,8 @@ public class ApkServInject {
         }
     }
     private static void createOptions() {
-        apkFileOption = Option.builder("a").longOpt("apk").desc("APK file to inject smali").build();
-        smaliFileOption = Option.builder("s").longOpt("smali").desc("(smali) Service file to inject.").build();
+        Option apkFileOption = Option.builder("a").longOpt("apk").desc("APK file to inject smali").build();
+        Option smaliFileOption = Option.builder("s").longOpt("smali").desc("(smali) Service file to inject.").build();
         options.addOption(apkFileOption);
         options.addOption(smaliFileOption);
     }
