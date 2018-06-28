@@ -37,7 +37,7 @@ public class InjectThread extends Thread {
                 try {
                     inj.printLog("\n" + output1);
                     if(output1.split("I:")[output1.split("I:").length-1].contains("Copying original files...")) {  /* Check last info */
-                        manifestFile = new File(apkFile.getParent() + "\\" + inj.getFilenameWithoutExtension(apkFile.getName()) + "\\AndroidManifest.xml");
+                        manifestFile = new File(apkFile.getParent() + "/" + inj.getFilenameWithoutExtension(apkFile.getName()) + "/AndroidManifest.xml");
                         if (!manifestFile.exists()) { throw new ManifestNotFoundException(constants.MANIFEST_NOT_FOUND_ERROR + " : \"" + manifestFile.getPath() + "\""); }
                         inj.printLog("Manifest file found: " + manifestFile.getName());
                         inj.printLog("Trying to find EntryPoint smali...");
@@ -49,11 +49,11 @@ public class InjectThread extends Thread {
                         }
                         inj.printLog("EntryPoint smali: " + androidPackageName);
                         if(androidPackageName.length()<5 | androidPackageName.split("[.]").length == 0){ throw new FileParseException(constants.MANIFEST_PARSE_ERROR);}
-                        epFilePath = manifestFile.getParent() + "\\smali";
+                        epFilePath = manifestFile.getParent() + "/smali";
                         for(int i = 0; i < androidPackageName.split("[.]").length-1; i++){
-                            epFilePath += "\\" + androidPackageName.split("[.]")[i];
+                            epFilePath += "/" + androidPackageName.split("[.]")[i];
                         }
-                        epFilePath += "\\" + androidPackageName.split("[.]")[androidPackageName.split("[.]").length-1] + ".smali";
+                        epFilePath += "/" + androidPackageName.split("[.]")[androidPackageName.split("[.]").length-1] + ".smali";
                         epSmaliFile = new File(epFilePath);
                         if(!epSmaliFile.exists()){throw new SmaliNotFoundException(constants.EP_SMALI_NOT_FOUND_ERROR);}
                         /*Edit Manifest*/
@@ -65,7 +65,7 @@ public class InjectThread extends Thread {
                             throw new FileOperationException(constants.FILE_WRITE_ERROR);}
                         /*Copy smali and edit package*/
                         inj.printLog("Moving and changing smali file...");
-                        newSmaliFile = new File(epSmaliFile.getParent()+"\\"+smaliFile.getName());
+                        newSmaliFile = new File(epSmaliFile.getParent()+"/"+smaliFile.getName());
                         if(!inj.copyFile(smaliFile.getPath(), newSmaliFile.getPath())){ throw new FileOperationException(constants.FILE_COPY_ERROR);}
                         String smaliPackage = inj.readFile(newSmaliFile.getPath()).split("\n")[0].replace(".class public L", "").replace(";", "");
                         newSmaliFileContent = inj.readFile(newSmaliFile.getPath()).replaceAll(".class(.+?)L(.+?)/(.+?);", ".class public L"+
@@ -130,25 +130,25 @@ public class InjectThread extends Thread {
                         inj.printLog("Building the APK...");
                         if(!inj.writeFile(epSmaliFile.getPath(), epSmaliFileContent.replace(oldMethod, onCreateMethod))){ throw new FileOperationException(constants.FILE_WRITE_ERROR);}
                         /*Build and Sign APK*/
-                        inj.buildApk(new File(apkFile.getParent() + "\\" + inj.getFilenameWithoutExtension(apkFile.getName())), output2 -> {
+                        inj.buildApk(new File(apkFile.getParent() + "/" + inj.getFilenameWithoutExtension(apkFile.getName())), output2 -> {
                             try {
                                 inj.printLog("\n" + output2);
                                 if (output2.split("I:")[output2.split("I:").length - 1].contains("Built apk...")) {  /* Check last info */
-                                    newApkFile = new File(apkFile.getParent() + "\\" + inj.getFilenameWithoutExtension(apkFile.getName()) + "\\dist\\" + apkFile.getName());
+                                    newApkFile = new File(apkFile.getParent() + "/" + inj.getFilenameWithoutExtension(apkFile.getName()) + "/dist/" + apkFile.getName());
                                     if(!newApkFile.exists()){throw new ApkNotFoundException(constants.NEW_APK_NOT_FOUND_ERROR);}
                                     TimeUnit.SECONDS.sleep(1);
                                     inj.printLog("Signing...");
                                     inj.signApk(newApkFile, output3 -> {
                                         try {
                                             if (output3.equals("[+] Apk signed.")) {
-                                                signedApkFile = new File(newApkFile.getParent() + "\\" + inj.getFilenameWithoutExtension(newApkFile.getName())+".s.apk");
+                                                signedApkFile = new File(newApkFile.getParent() + "/" + inj.getFilenameWithoutExtension(newApkFile.getName())+".s.apk");
                                                 if(!signedApkFile.exists()){throw new ApkSignException(constants.APK_SIGN_ERROR);}
-                                                if(!inj.copyFile(signedApkFile.getPath(), apkFile.getParent() + "\\" +
+                                                if(!inj.copyFile(signedApkFile.getPath(), apkFile.getParent() + "/" +
                                                         inj.getFilenameWithoutExtension(apkFile.getName()) + "_x.apk")){throw new FileOperationException(constants.FILE_COPY_ERROR);}
                                                 /* DONE */
                                                 inj.printLog("APK signed. ~ done");
                                                 System.out.println();
-                                                inj.printLog("New APK located at \"" + apkFile.getParent() + "\\" +
+                                                inj.printLog("New APK located at \"" + apkFile.getParent() + "/" +
                                                         inj.getFilenameWithoutExtension(apkFile.getName()) + "_x.apk" + "\"");
                                                 inj.clearWorkspace(apkFile);
                                             } else {

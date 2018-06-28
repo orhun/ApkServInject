@@ -7,15 +7,14 @@ import utils.exceptions.ApkNotFoundException;
 import utils.exceptions.ApkServInjectException;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Scanner;
 
 public class ApkServInject {
     private static String workingDir = System.getProperty("user.dir");
     private static final Injector injector = new Injector();
     private static final Options options = new Options();
-    private static final File testApkFile = new File(workingDir + "\\test.apk");
-    private static final File testSmaliFile = new File(workingDir + "\\Serv2Inject.smali");
+    private static final File testApkFile = new File(workingDir + "/test.apk");
+    private static final File testSmaliFile = new File(workingDir + "/Serv2Inject.smali");
     private static Option apkFileOption, smaliFileOption;
     private static Boolean testInj = false;
     public static void main(String[] args) {
@@ -30,8 +29,8 @@ public class ApkServInject {
                 if(!apkFile.exists()){throw new ApkNotFoundException(new Constants().APK_NOT_FOUND_ERROR);}
                 if(!smaliFile.exists()){throw new ApkNotFoundException(new Constants().SMALI_NOT_FOUND_ERROR);}
                 if(apkFile.getParent() == null || smaliFile.getParent() == null){ /* Same dir */
-                    apkFile = new File(workingDir + "\\" + apkFile.getName());
-                    smaliFile = new File(workingDir + "\\" + smaliFile);
+                    apkFile = new File(workingDir + "/" + apkFile.getName());
+                    smaliFile = new File(workingDir + "/" + smaliFile);
                     System.out.println(apkFile.getPath() + smaliFile.getParent());
                 }
                 printHeader();

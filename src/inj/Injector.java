@@ -60,7 +60,7 @@ public class Injector {
                 Sign.main(new String[]{apkFile.getPath()});
                 while (true){
                     Thread.sleep(sleepTime);
-                    if(new File(apkFile.getParent() + "\\" + getFilenameWithoutExtension(apkFile.getName())+".s.apk").exists()){
+                    if(new File(apkFile.getParent() + "/" + getFilenameWithoutExtension(apkFile.getName())+".s.apk").exists()){
                         break;
                     }
                 }
@@ -79,7 +79,7 @@ public class Injector {
     public void clearWorkspace(File apkFile){
         try {
             printLog("Clearing workspace...");
-            File apktDir = new File(apkFile.getParent() + "\\" + getFilenameWithoutExtension(apkFile.getName()) + "\\");
+            File apktDir = new File(apkFile.getParent() + "/" + getFilenameWithoutExtension(apkFile.getName()) + "/");
             if(!apktDir.exists()){ throw new Exception("There is nothing to delete"); }
             FileUtils.deleteDirectory(apktDir);
         }catch (Exception e){
