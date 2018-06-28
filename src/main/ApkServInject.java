@@ -15,7 +15,7 @@ public class ApkServInject {
     private static final Injector injector = new Injector();
     private static final Options options = new Options();
     private static final File testApkFile = new File(workingDir + "\\test.apk");
-    private static final File testSmaliFile = new File(workingDir + "\\MyService.smali");
+    private static final File testSmaliFile = new File(workingDir + "\\Serv2Inject.smali");
     private static Option apkFileOption, smaliFileOption;
     private static Boolean testInj = false;
     public static void main(String[] args) {
@@ -82,6 +82,5 @@ public class ApkServInject {
         HelpFormatter formatter = new HelpFormatter();
         formatter.printHelp("ApkServInject", options);
         System.out.println("\nFor additional info, see: http://github.com/KeyLo99/ApkServInject\n");
-        // // TODO: 6/28/2018 Add help option
     }
 }

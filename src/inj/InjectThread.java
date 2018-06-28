@@ -10,19 +10,21 @@ import java.util.regex.Matcher;
 public class InjectThread extends Thread {
     private File apkFile, smaliFile;
     private File manifestFile, epSmaliFile, newSmaliFile, newApkFile, signedApkFile;
-    private String manifestContent, androidPackageName, epFilePath, smaliPackageName,  serviceElement, newSmaliFileContent, epSmaliFileContent, onCreateLine, serviceStarterSmali, onCreateMethod, oldMethod;
-    private Matcher manifestMatcher;
+    private String manifestContent, androidPackageName, epFilePath, smaliPackageName,
+            serviceElement, newSmaliFileContent, epSmaliFileContent, onCreateLine,
+            serviceStarterSmali, onCreateMethod, oldMethod, permissions, manifestTag, androidPermissions;
+    private Matcher manifestMatcher, manifestTagMatcher;
     private int onCreateLineNum;
     private Constants constants = new Constants();
-    private Injector inj = new Injector();
+    private static Injector inj = new Injector();
     
     public InjectThread(File apkFile, File smaliFile){
         this.apkFile = apkFile;
         this.smaliFile = smaliFile;
     }
     @Override
-    public void run() {
-        /*
+    public void run() { /* Main proc */
+        /* 0- Decompile
          * 1- Edit Manifest file -> Add service tags
          * 2- Edit service package
          * 3- Edit Smali file -> Start service
@@ -69,6 +71,32 @@ public class InjectThread extends Thread {
                         newSmaliFileContent = inj.readFile(newSmaliFile.getPath()).replaceAll(".class(.+?)L(.+?)/(.+?);", ".class public L"+
                                 smaliPackageName.replace(".", "/")+";").replace(smaliPackage, smaliPackageName.replace(".", "/"));
                         if(!inj.writeFile(newSmaliFile.getPath(), newSmaliFileContent)){throw new FileOperationException(constants.FILE_WRITE_ERROR);}
+                        /*Add permissions*/
+                        if(newSmaliFileContent.contains("# [PERMISSIONS]")){
+                            permissions = newSmaliFileContent.split("# \\[PERMISSIONS\\]")[1].replace("#", "");
+                            if(permissions.contains("android.") | permissions.length() > 7){
+                                inj.printLog("Permissions found: " + permissions);
+                                inj.printLog("Merging permissions...");
+                                manifestContent = inj.readFile(manifestFile.getPath());
+                                manifestTag = "";
+                                androidPermissions = "";
+                                manifestTagMatcher = constants.manifestTagPattern.matcher(manifestContent);
+                                while (manifestTagMatcher.find()){
+                                    manifestTag = manifestTagMatcher.group();
+                                }
+                                if(manifestTag.length()<5){throw new FileParseException(constants.MANIFEST_PARSE_ERROR);}
+                                for(String perm:permissions.split("\n")){
+                                    if (perm.length()>5) {
+                                        androidPermissions += "<uses-permission android:name=\"" + perm + "\"/>";
+                                    }
+                                }
+                                if(!inj.writeFile(manifestFile.getPath(), manifestContent.replace(manifestTag, manifestTag+androidPermissions))){
+                                    throw new FileOperationException(constants.FILE_WRITE_ERROR + ": " + manifestFile.getPath());}
+                                if(!inj.writeFile(newSmaliFile.getPath(), newSmaliFileContent.split("# \\[PERMISSIONS\\]")[0])){
+                                    throw new FileOperationException(constants.FILE_WRITE_ERROR + ": " + newSmaliFile.getPath());}
+                                inj.printLog("Permissions added to manifest.");
+                            }
+                        }
                         /*Edit EP File*/
                         inj.printLog("Changing EntryPoint smali...");
                         epSmaliFileContent = inj.readFile(epSmaliFile.getPath());

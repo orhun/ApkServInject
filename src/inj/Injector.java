@@ -13,8 +13,6 @@ import java.nio.file.StandardCopyOption;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
 
 public class Injector {
     public interface ConsoleProcess{
@@ -22,6 +20,7 @@ public class Injector {
     }
     private ConsoleProcess consoleProcess;
     private Constants constants;
+    private int sleepTime = 500;
 
     public Injector(){
         constants = new Constants();
@@ -60,7 +59,7 @@ public class Injector {
             if(apkFile.exists()) {
                 Sign.main(new String[]{apkFile.getPath()});
                 while (true){
-                    Thread.sleep(500);
+                    Thread.sleep(sleepTime);
                     if(new File(apkFile.getParent() + "\\" + getFilenameWithoutExtension(apkFile.getName())+".s.apk").exists()){
                         break;
                     }

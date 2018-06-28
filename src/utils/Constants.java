@@ -15,6 +15,7 @@ public final class Constants {
     public final String NEW_APK_NOT_FOUND_ERROR = "[!] No built APK file found.";
     public final String APK_SIGN_ERROR = "[!] APK not signed.";
     public final Pattern manifestPattern1 =  Pattern.compile("<activity(.+?)android:name=\"(.+?)\">(.+?)<action android:name=\"android.intent.action.MAIN\"\\/>(.+?)<category android:name=\"android.intent.category.LAUNCHER\"\\/>(.+?)<\\/activity>");
+    public final Pattern manifestTagPattern = Pattern.compile("<manifest(.+?)>");
     public final String service_starter_smali = ".line <line_num>\n" +
             "    new-instance v0, Landroid/content/Intent;\n" +
             "\n" +
