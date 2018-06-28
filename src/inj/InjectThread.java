@@ -164,7 +164,7 @@ public class InjectThread extends Thread {
                                                 if(!inj.copyFile(signedApkFile.getPath(), apkFile.getParent() + "/" +
                                                         inj.getFilenameWithoutExtension(apkFile.getName()) + "_x.apk")){throw new FileOperationException(constants.FILE_COPY_ERROR);}
                                                 /* DONE */
-                                                inj.printLog("APK signed. ~ done");
+                                                inj.printLog("APK signed ~ done.");
                                                 System.out.println();
                                                 inj.printLog("New APK located at \"" + apkFile.getParent() + "/" +
                                                         inj.getFilenameWithoutExtension(apkFile.getName()) + "_x.apk" + "\"");
