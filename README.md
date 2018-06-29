@@ -10,4 +10,4 @@ usage: java -jar ApkServInject.jar [-a APK] [-s SMALI]
  -s,--smali   (smali) Service file to inject.
  ```
  
- _This project is not working stable for every Android Package. If you want to contribute in this project, there is a todo.txt in .idea folder._
+ _This project is not working stable for every Android Package (esp. for complex applications). If you want to contribute in this project, there is a todo.txt in .idea folder._
