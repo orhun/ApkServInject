@@ -25,7 +25,7 @@ public class Injector {
     public Injector(){
         constants = new Constants();
     }
-    public void decompileApk(File apkFile, ConsoleProcess consoleProcess){
+    public void decodeApk(File apkFile, ConsoleProcess consoleProcess){
         this.consoleProcess = consoleProcess;
         String[] args = new String[]{"d", "-f", apkFile.getPath().trim()};
         runApktool(apkFile, args);

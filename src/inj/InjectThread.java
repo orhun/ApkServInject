@@ -25,7 +25,7 @@ public class InjectThread extends Thread {
     }
     @Override
     public void run() { /* Main proc */
-        /* 0- Decompile
+        /* 0- Decode apk
          * 1- Edit Manifest file -> Add service tags
          * 2- Edit service package
          * 3- Edit Smali file -> Start service
@@ -34,7 +34,7 @@ public class InjectThread extends Thread {
         inj.printLog("Starting...");
         inj.printLog("Decompiling APK with ApkTool...");
         if(apkFile.exists() && smaliFile.exists()){
-            inj.decompileApk(apkFile, output1 -> {
+            inj.decodeApk(apkFile, output1 -> {
                 try {
                     inj.printLog("\n" + output1);
                     if(output1.split("I:")[output1.split("I:").length-1].contains("Copying original files...")) {  /* Check last info */
