@@ -90,9 +90,9 @@ I: Built apk...
 ## TODO(s)
 
 * Regex pattern should be fixed for xml parsing.
-* Smali edit part must be changed depending on Android App's SDK version
+* Smali edit part must be changed depending on Android Apps SDK version.
 * Finding EP other than onCreate method feature should be added.
-* Main Thread may be seperated with functions for more readable code, but not necessary.
+* Main Thread may be seperated to functions for more readable code, but not necessary.
 
 ## License
 
