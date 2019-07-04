@@ -67,7 +67,8 @@ android.permission.INTERNET
 [16:29:15] EntryPoint smali changed.
 [16:29:15] Building the APK...
 S: WARNING: Could not write to (/home/k3/.local/share/apktool/framework), using /tmp instead...
-S: Please be aware this is a volatile directory and frameworks could go missing, please utilize --frame-path if the default storage directory is unavailable
+S: Please be aware this is a volatile directory and frameworks could go missing, 
+please utilize --frame-path if the default storage directory is unavailable
 [16:29:23] 
 I: Using Apktool 2.3.3
 I: Checking whether sources has changed...
