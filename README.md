@@ -6,8 +6,6 @@
 <a href="https://github.com/KeyLo99/ApkServInject/network"><img src="https://img.shields.io/github/forks/KeyLo99/ApkServInject.svg"/></a>
 <a href="https://github.com/KeyLo99/ApkServInject/blob/master/LICENSE"><img src="https://img.shields.io/github/license/KeyLo99/ApkServInject.svg"/></a>
 
-ApkServInject - a tool for injecting (smali) service to Android apk files
-
 ```
 usage: java -jar ApkServInject.jar [-a APK] [-s SMALI]
 
