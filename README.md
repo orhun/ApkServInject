@@ -1,6 +1,5 @@
-<img align="center" src='https://raw.githubusercontent.com/KeyLo99/ApkServInject/master/1.png' width='200' height='200'/>
-
 # ApkServInject
+
 <a href="https://github.com/KeyLo99/ApkServInject/issues"><img src="https://img.shields.io/github/issues/KeyLo99/ApkServInject.svg"/></a>
 <a href="https://github.com/KeyLo99/ApkServInject/pulls"><img src="https://img.shields.io/github/issues-pr/KeyLo99/ApkServInject.svg"/></a>
 <a href="https://github.com/KeyLo99/ApkServInject/stargazers"><img src="https://img.shields.io/github/stars/KeyLo99/ApkServInject.svg"/></a>
@@ -16,4 +15,22 @@ usage: java -jar ApkServInject.jar [-a APK] [-s SMALI]
  -s,--smali   (smali) Service file to inject.
  ```
  
- _This software is not working stable for every Android Package (esp. for complex applications). If you want to contribute in this project, there is a todo.txt in .idea folder._
+ _This software is not working stable for every Android Package. (esp. for complex applications)_
+
+## TODO(s)
+
+* Regex pattern should be fixed for xml parsing.
+* Smali edit part must be changed depending on Android App's SDK version
+* Finding EP other than onCreate method feature should be added.
+* Main Thread may be seperated with functions for more readable code, but not necessary.
+
+## License
+
+GNU General Public License v3. (see [gpl](https://www.gnu.org/licenses/gpl.txt))
+
+
+
+
+
+
+ 
