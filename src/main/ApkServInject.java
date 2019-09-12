@@ -79,6 +79,6 @@ public class ApkServInject {
         printHeader();
         HelpFormatter formatter = new HelpFormatter();
         formatter.printHelp("ApkServInject", options);
-        System.out.println("\nFor additional info, see: http://github.com/KeyLo99/ApkServInject\n");
+        System.out.println("\nFor additional info, see: http://github.com/orhun/ApkServInject\n");
     }
 }

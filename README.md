@@ -1,10 +1,10 @@
-# ApkServInject <a href="https://github.com/KeyLo99/ApkServInject/releases"><img src="https://img.shields.io/github/release/KeyLo99/ApkServInject.svg"/></a>
+# ApkServInject <a href="https://github.com/orhun/ApkServInject/releases"><img src="https://img.shields.io/github/release/orhun/ApkServInject.svg"/></a>
 
-<a href="https://github.com/KeyLo99/ApkServInject/issues"><img src="https://img.shields.io/github/issues/KeyLo99/ApkServInject.svg"/></a>
-<a href="https://github.com/KeyLo99/ApkServInject/pulls"><img src="https://img.shields.io/github/issues-pr/KeyLo99/ApkServInject.svg"/></a>
-<a href="https://github.com/KeyLo99/ApkServInject/stargazers"><img src="https://img.shields.io/github/stars/KeyLo99/ApkServInject.svg"/></a>
-<a href="https://github.com/KeyLo99/ApkServInject/network"><img src="https://img.shields.io/github/forks/KeyLo99/ApkServInject.svg"/></a>
-<a href="https://github.com/KeyLo99/ApkServInject/blob/master/LICENSE"><img src="https://img.shields.io/github/license/KeyLo99/ApkServInject.svg"/></a>
+<a href="https://github.com/orhun/ApkServInject/issues"><img src="https://img.shields.io/github/issues/orhun/ApkServInject.svg"/></a>
+<a href="https://github.com/orhun/ApkServInject/pulls"><img src="https://img.shields.io/github/issues-pr/orhun/ApkServInject.svg"/></a>
+<a href="https://github.com/orhun/ApkServInject/stargazers"><img src="https://img.shields.io/github/stars/orhun/ApkServInject.svg"/></a>
+<a href="https://github.com/orhun/ApkServInject/network"><img src="https://img.shields.io/github/forks/orhun/ApkServInject.svg"/></a>
+<a href="https://github.com/orhun/ApkServInject/blob/master/LICENSE"><img src="https://img.shields.io/github/license/orhun/ApkServInject.svg"/></a>
 
 ```
 usage: java -jar ApkServInject.jar [-a APK] [-s SMALI]
@@ -19,7 +19,7 @@ usage: java -jar ApkServInject.jar [-a APK] [-s SMALI]
    / _ \ | '_ \| |/ \___ \ / _ | '__\ \ / /| || '_ \ | |/ _ \/ __| __|
   / ___ \| |_) |   < ___) |  __| |   \ V / | || | | || |  __| (__| |_ 
  /_/   \_| .__/|_|\_|____/ \___|_|    \_/ |___|_| |__/ |\___|\___|\__|
-         |_|@KeyLo99                               |__/               
+         |_|@orhun                               |__/               
 
 ApkServInject - a tool for injecting (smali) service to Android apk files
 
@@ -27,7 +27,7 @@ usage: ApkServInject
  -a,--apk     APK file to inject smali
  -s,--smali   (smali) Service file to inject.
 
-For additional info, see: http://github.com/KeyLo99/ApkServInject
+For additional info, see: http://github.com/orhun/ApkServInject
 
 Test files found. Would you like to perform a test injection? [y/n]: 
 y
