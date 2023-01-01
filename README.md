@@ -97,3 +97,7 @@ I: Built apk...
 ## License
 
 GNU General Public License v3. (see [gpl](https://www.gnu.org/licenses/gpl.txt))
+
+## Copyright
+
+Copyright (c) 2018-2023, [orhun](https://www.github.com/orhun)
